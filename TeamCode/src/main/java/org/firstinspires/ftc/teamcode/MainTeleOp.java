@@ -75,7 +75,7 @@ public class MainTeleOp extends LinearOpMode
             } else {
                 robot.lights.setDefaultColor(RevBlinkinLedDriver.BlinkinPattern.BLUE);
             }
-            robot.jaws.setTilt90(1);
+
 
         }
 
@@ -180,7 +180,7 @@ public class MainTeleOp extends LinearOpMode
                 robot.jaws.setLiftGroundJunction(.25);
 
             } else if(gamepad2.ps) {
-                robot.jaws.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.jaws.left_lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             } else if(gamepad2.dpad_right){
                 robot.jaws.setLiftLowPole(.8);
@@ -188,21 +188,13 @@ public class MainTeleOp extends LinearOpMode
             } else if(gamepad2.left_bumper){
                 robot.jaws.setLiftBottom(.25);
             }
-            if(robot.jaws.lift.getCurrentPosition() < 360){
-                robot.jaws.setTiltPos(0,.5);
-            }
-            if(gamepad2.touchpad){
-                robot.jaws.setTiltPos(125,.15);
-            }
-
-            //Moves tilt mechanism manually
 
 
             //manually be able to move lift on both gamepad 1 and 2
             if(gamepad2.y || gamepad1.y){
-                robot.jaws.bumpLift(40 );
+                robot.jaws.setTiltback(.1 );
             }else if(gamepad2.a || gamepad1.a){
-                robot.jaws.bumpLift(-40);
+                robot.jaws.setTiltforward(.1);
             }
             //gamepad 2 can close the claw
             if(gamepad2.right_trigger>0.1 || (robot.jaws.haveCone() && gamepad2.left_trigger <= 0.1)){
@@ -220,7 +212,7 @@ public class MainTeleOp extends LinearOpMode
             telemetry.addData("Power", "LF %.2f RF %.2f LB %.2f RB %.2f", robot.drive.leftFrontMotor.getPower(), robot.drive.rightFrontMotor.getPower(),robot.drive.leftRearMotor.getPower(),robot.drive.rightRearMotor.getPower());
             //telemetry.addData("Power", "LF %s RF %s LB %s RB %s", robot.drive.leftFrontMotor.getDirection().toString(), robot.drive.rightFrontMotor.getDirection().toString(),robot.drive.leftRearMotor.getDirection().toString(),robot.drive.rightRearMotor.getDirection().toString());
 
-            telemetry.addData("lift pos","Cur:%d target:%d pow:%.2f",robot.jaws.lift.getCurrentPosition(), robot.jaws.lift.getTargetPosition(), robot.jaws.lift.getPower());
+            telemetry.addData("lift pos","Cur:%d target:%d pow:%.2f",robot.jaws.left_lift.getCurrentPosition(), robot.jaws.left_lift.getTargetPosition(), robot.jaws.left_lift.getPower());
             telemetry.addData("Game Timer","%.2f",elapsedGameTime.time());
             telemetry.addData("Tilt Pos","Cur:%d target:%d pow:%.2f",robot.jaws.tilt.getCurrentPosition(), robot.jaws.tilt.getTargetPosition(),robot.jaws.tilt.getPower());
 

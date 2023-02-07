@@ -151,9 +151,9 @@ public class CatHW_DriveOdo extends CatHW_Subsystem
         leftRearMotor.setDirection(DcMotor.Direction.REVERSE);
         rightRearMotor.setDirection(DcMotor.Direction.FORWARD);
 
-       realSense = new CatHW_RealSense(mainHW);
-       realSense.init();
-       motionProfile = new CatMotionProfile();
+        realSense = new CatHW_RealSense(mainHW);
+        realSense.init();
+        motionProfile = new CatMotionProfile();
         // Define motor zero power behavior: //
         setDriveToBrake();
 
@@ -171,10 +171,10 @@ public class CatHW_DriveOdo extends CatHW_Subsystem
     }
 
     public void setNormalTolerance(){
-            tolerance = 0.5;
+        tolerance = 0.5;
     }
     public void setLooseTolerance(){
-            tolerance= 2;
+        tolerance= 2;
     }
     public void setTightTolerance(){
         tolerance = 0.1;
@@ -290,10 +290,10 @@ public class CatHW_DriveOdo extends CatHW_Subsystem
         // Power update Thread:
         if (isNonStop){
             //if the last drive was nonstop
-           // motionProfile.setNonStopTarget(x, y, power, realSense.getXPos(), realSense.getYPos());
+            // motionProfile.setNonStopTarget(x, y, power, realSense.getXPos(), realSense.getYPos());
         }else {
             //if the last drive was normal
-           // motionProfile.setTarget(x, y, power, realSense.getXPos(), realSense.getYPos());
+            // motionProfile.setTarget(x, y, power, realSense.getXPos(), realSense.getYPos());
 
         }
 
@@ -337,7 +337,7 @@ public class CatHW_DriveOdo extends CatHW_Subsystem
         isDone = false;
         targetPoints = points;
 
-       // targetPoints.add(0, new CatType_CurvePoint(realSense.getXPos(), realSense.getYPos(),realSense.getRotation()));
+        // targetPoints.add(0, new CatType_CurvePoint(realSense.getXPos(), realSense.getYPos(),realSense.getRotation()));
         this.followRadius = followRadius;
         for(int i = 0; i<targetPoints.size(); i++){
             Log.d("catbot",String.format("Pursuit Point %.2f %.2f %.2f",targetPoints.get(i).x,targetPoints.get(i).y, targetPoints.get(i).theta ));
@@ -411,9 +411,9 @@ public class CatHW_DriveOdo extends CatHW_Subsystem
         currentMethod = DRIVE_METHOD.TURN;
         timeout = timeoutS;
         //double currentTheta = realSense.getRotation();
-       // while((theta - currentTheta) < -180){
-            theta += 360;
-        }
+        // while((theta - currentTheta) < -180){
+        theta += 360;
+    }
         /*while((theta - currentTheta) > 180){
             theta -= 360;
         }
@@ -515,7 +515,7 @@ public class CatHW_DriveOdo extends CatHW_Subsystem
                 }
                 turnPow += turnRate * - 0.003;
                 //Log.d("catbot", String.format("turn target %.1f, current %.1f  %s Power %.3f D:%.3f",
-                  //      targetTheta, zVal, clockwiseTurn ? "CW" : "CCW", turnPow, turnRate * -0.003));
+                //      targetTheta, zVal, clockwiseTurn ? "CW" : "CCW", turnPow, turnRate * -0.003));
                 leftFrontMotor.setPower(turnPow);
                 leftRearMotor.setPower(turnPow);
                 rightFrontMotor.setPower(-turnPow);
@@ -842,7 +842,6 @@ public class CatHW_DriveOdo extends CatHW_Subsystem
                              double leftBackValue, double rightBackValue) {
         /*
         PLANS:
-
         1: Look at all motor values
         2: Find the highest absolute value (the "scalor")
         3: If the highest value is not more than 1.0, we don't need to change the values

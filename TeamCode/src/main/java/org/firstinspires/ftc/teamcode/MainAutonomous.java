@@ -175,7 +175,6 @@ public class MainAutonomous extends LinearOpMode {
     public void left(){
 
         CatHW_Vision.UltimateGoalPipeline.conePosition conePos = robot.eyes.getConePos();
-        robot.jaws.setTiltPos(0,1);
 
         telemetry.addData("Position",conePos.toString());
         telemetry.update();
@@ -257,7 +256,6 @@ public class MainAutonomous extends LinearOpMode {
         CatHW_Vision.UltimateGoalPipeline.conePosition conePos = robot.eyes.getConePos();
         int stackedConeHeight = 130;
 
-        robot.jaws.setTiltPos(0,1);
         //Grabs Cone and lifts the lift
         robot.jaws.grabPos();
         robot.robotWait(.5);
