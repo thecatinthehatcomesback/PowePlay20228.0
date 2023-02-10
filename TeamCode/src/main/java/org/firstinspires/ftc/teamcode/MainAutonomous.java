@@ -167,38 +167,94 @@ public class MainAutonomous extends LinearOpMode {
          */
         runningTime.reset();
         if(robot.isLeftAlliance){
+
             left();
         }else if(!robot.isLeftAlliance){
             right();
         }
+        robot.jaws.ourThread.stop();
     }
     public void left(){
 
         CatHW_Vision.UltimateGoalPipeline.conePosition conePos = robot.eyes.getConePos();
 
         telemetry.addData("Position",conePos.toString());
-        telemetry.update();
-        int stackedConeHeight = 130;
+        //telemetry.update();
+        int stackedConeHeight = 40;
 
         robot.jaws.grabPos();
-        robot.robotWait(.5);
-        robot.jaws.setLiftMiddlePole(1);
+        robot.robotWait(.16);
+
+        robot.jaws.setLiftMiddleFront(.7);
+        robot.robotWait(.16);
+
         robot.drive.quickDrive(3.5,8,0,1,5);
-        robot.drive.setTightTolerance();
+
         //robot.drive.quickDrive(11,37,40,.3,5);
-        robot.drive.quickDrive(15.5,32,0,.35,5);
+        robot.drive.quickDrive(17,31,0,1,5);
+        robot.drive.setTightTolerance();
+        robot.drive.quickDrive(17,33.5,0,.2,5);
         robot.robotWait(.5);
+        robot.jaws.setArmHeight(95);
         robot.jaws.unGrab();
-        robot.jaws.setLiftBottom(.25);
-        robot.robotWait(.2);
+        robot.robotWait(.25);
 
 
         //drives over to the stack of cones and picks one up
         robot.drive.setNormalTolerance();
-        robot.drive.quickDrive(4,27,0,.5,5);
-        robot.drive.quickDrive(4,53,0,.5,5);
+        robot.drive.quickDrive(4,27,0,1,5);
+        robot.jaws.setLiftBottom(.7);
+        robot.jaws.setArmHeight(stackedConeHeight);
+        robot.drive.quickDrive(4,53,0,1,5);
 
-        while(runningTime.seconds() < 20){
+        //DELETE BELOW AFTER TESTING
+
+        robot.robotWait(.25);
+        robot.drive.setLooseTolerance();
+        robot.drive.quickDrive(-4,48,-90,1,5);
+        robot.drive.setTightTolerance();
+        robot.drive.quickDrive(-9,48,-90,.2,5);
+        ElapsedTime grabTimer = new ElapsedTime();
+        while(!robot.jaws.haveCone() && (grabTimer.seconds() < 2)){
+            robot.drive.setDrivePowers(.15,.15,.15,.15);
+        }
+        robot.jaws.grabPos();
+        robot.robotWait(.5);
+        robot.jaws.setArmHeight(70);
+        robot.robotWait(.25);
+        robot.drive.quickDrive(12,45,-90,1,5);
+        robot.jaws.setLiftMiddleBack(.3);
+        robot.drive.quickDrive(8,35,-90,.5,5);
+        robot.drive.quickDrive(6,35,-90,.5,5);
+        robot.robotWait(.2);
+        robot.jaws.setLiftHeight(380,.5);
+        robot.robotWait(.2);
+        robot.jaws.unGrab();
+        robot.robotWait(.2);
+        robot.drive.quickDrive(12,45,-90,1,5);
+        robot.jaws.grabPos();
+        robot.robotWait(.15);
+        robot.jaws.setLiftBottom(.7);
+        robot.jaws.setArmHeight(stackedConeHeight - 5);
+        robot.jaws.unGrab();
+
+        robot.drive.setLooseTolerance();
+        switch(conePos) {
+            case NONE:
+            case RIGHT:
+                robot.drive.quickDrive(38, 50, -90, 1, 5);
+                break;
+            case MIDDLE:
+                robot.drive.quickDrive(12,50,-90,1,5);
+                break;
+            case LEFT:
+                robot.drive.quickDrive(-9, 46, -90, 1, 6);
+                break;
+        }
+
+        //DELETE ABOVE AFTER TESTING
+
+        /*while(runningTime.seconds() < 20){
 
             robot.jaws.setLiftHeight(stackedConeHeight,.5);
             robot.robotWait(.25);
@@ -211,7 +267,7 @@ public class MainAutonomous extends LinearOpMode {
             }
             robot.jaws.grabPos();
             robot.robotWait(.5);
-            robot.jaws.setLiftLowPole(.5);
+            robot.jaws.setLiftLowBack(.5);
             robot.drive.setDrivePowers(-.1,-.1,-.1,-.1);
 
 
@@ -228,7 +284,7 @@ public class MainAutonomous extends LinearOpMode {
             robot.robotWait(.25);
             robot.drive.setNormalTolerance();
             robot.drive.quickDrive(0,52,-180,.3,5);
-            stackedConeHeight -= 20;
+            stackedConeHeight -= 5;
         }
         robot.jaws.setLiftBottom(.5);
 
@@ -246,7 +302,7 @@ public class MainAutonomous extends LinearOpMode {
                 robot.drive.quickDrive(-8, 50, -180, .5, 6);
                 break;
         }
-        robot.robotWait(2);
+        robot.robotWait(2);*/
 
 
 
@@ -254,30 +310,68 @@ public class MainAutonomous extends LinearOpMode {
     }
     public void right(){
         CatHW_Vision.UltimateGoalPipeline.conePosition conePos = robot.eyes.getConePos();
-        int stackedConeHeight = 130;
+        int stackedConeHeight = 40;
 
         //Grabs Cone and lifts the lift
         robot.jaws.grabPos();
-        robot.robotWait(.5);
-        robot.jaws.setLiftMiddlePole(.5);
+        robot.robotWait(.16);
+        robot.jaws.setLiftMiddleFront(.5);
+        robot.robotWait(.1);
         robot.drive.setLooseTolerance();
 
         //Drives to the medium junction and drops the cone
-        robot.drive.quickDrive(3.5,18,0,.5,5);
+
+        robot.drive.quickDrive(3.5,22,0,1,5);
+        robot.drive.quickDrive(-7,30,0,1,5);
         robot.drive.setTightTolerance();
-        robot.drive.quickDrive(-7,30,0,.35,5);
-        robot.robotWait(.5);
+        robot.drive.quickDrive(-7,33.8,0,.25,5);
+        robot.robotWait(.2);
         robot.jaws.unGrab();
-        robot.jaws.setLiftBottom(.25);
         robot.robotWait(.25);
-        robot.drive.quickDrive(-8,27,0,.5,5);
+        robot.drive.quickDrive(-4,29,0,1,5);
+
+        robot.drive.quickDrive(4,29,0,1,5);
 
         //drives over to the stack of cones and picks one up
-        robot.drive.setNormalTolerance();
-        robot.drive.quickDrive(4,27,0,.5,5);
-        robot.drive.quickDrive(4,45,0,.5,5);
+        robot.drive.setLooseTolerance();
+        robot.drive.quickDrive(4,40,0,1,5);
+        robot.jaws.setLiftBottom(.25);
+        robot.jaws.setArmHeight(stackedConeHeight);
+        robot.drive.quickDrive(15,46,0,1,5);
 
-        while(runningTime.seconds() < 20){
+
+        robot.robotWait(.25);
+        robot.drive.setTightTolerance();
+        robot.drive.quickDrive(18,43,90,.25,5);
+
+        ElapsedTime grabTimer = new ElapsedTime();
+        while(!robot.jaws.haveCone() && (grabTimer.seconds() < 2)){
+            robot.drive.setDrivePowers(.15,.15,.15,.15);
+        }
+        robot.jaws.grabPos();
+        robot.robotWait(.25);
+        robot.jaws.setArmHeight(70);
+        robot.drive.setLooseTolerance();
+        robot.drive.quickDrive(2,43,90,1,5);
+        robot.jaws.setLiftMiddleBack(.3);
+
+        robot.drive.quickDrive(2,31,90,1,5);
+        robot.drive.quickDrive(6,31,90,1,5);
+        robot.jaws.setLiftHeight(380,1);
+        robot.robotWait(.25);
+        robot.jaws.unGrab();
+        robot.robotWait(.5);
+        robot.jaws.grabPos();
+        robot.drive.quickDrive(2,43,90,1,5);
+        robot.jaws.setLiftBottom(.5);
+        robot.robotWait(2);
+
+        //Below wil be if Parking RIGHT
+
+        //Above will be if Parking RIGHT
+
+
+        /*while(runningTime.seconds() < 20){
 
             robot.jaws.setLiftHeight(stackedConeHeight,.5);
             robot.robotWait(.25);
@@ -290,7 +384,7 @@ public class MainAutonomous extends LinearOpMode {
             }
             robot.jaws.grabPos();
             robot.robotWait(.5);
-            robot.jaws.setLiftLowPole(.5);
+            robot.jaws.setLiftLowBack(.5);
             robot.drive.setDrivePowers(-.1,-.1,-.1,-.1);
 
 
@@ -326,7 +420,7 @@ public class MainAutonomous extends LinearOpMode {
                 robot.drive.quickDrive(-12, 55, 180, 1, 6);
                 break;
         }
-        robot.robotWait(.25);
+        robot.robotWait(.25);*/
 
 
     }

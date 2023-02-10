@@ -25,7 +25,7 @@ public class CatHW_Async
      */
 
 
-    public static boolean isLeftAlliance = true;
+    public static boolean isLeftAlliance = false;
     public static boolean isRedAlliance = false;
 
 
@@ -80,7 +80,7 @@ public class CatHW_Async
         opMode.telemetry.addData("Initialize", "Lights...");
         opMode.telemetry.update();
         lights = CatHW_Lights.getInstanceAndInit(this);
-        lights.init();
+        //lights.init();
 
         opMode.telemetry.addData("Initialize", "Drive...");
         opMode.telemetry.update();

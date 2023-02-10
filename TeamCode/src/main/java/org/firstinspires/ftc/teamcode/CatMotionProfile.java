@@ -38,7 +38,7 @@ public class CatMotionProfile
     private double distanceToTarget;
 
     private static final double rampUpTime       = 400;  // In milliseconds
-    private static final double rampDownDistance = 22;
+    private static final double rampDownDistance = 25;
 
     private double targetX;
     private double targetY;
@@ -192,9 +192,9 @@ public class CatMotionProfile
         }else{
             distanceToFinalTargetPoint = distanceToTarget;
         }
-        if (currentPower >= (1 * (distanceToFinalTargetPoint / rampDownDistance))) { //had -0.2
+        if (currentPower >= (.7 * (distanceToFinalTargetPoint / rampDownDistance))) {
             // Ramp down if within the rampDownDistance.
-            currentPower = 1 * (distanceToFinalTargetPoint / rampDownDistance); //had -0.2
+            currentPower = .7 * (distanceToFinalTargetPoint / rampDownDistance); //had 1
 
         } else {
             // Ramp up power.

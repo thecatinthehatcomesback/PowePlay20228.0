@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import static java.lang.Thread.sleep;
+
 import android.util.Log;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -32,7 +34,6 @@ public class CatHW_Jaws extends CatHW_Subsystem
     // Motors: //
     //public CRServo intakeMotor = null;
     //public DcMotor intakeLift= null;
-    public TouchSensor liftBottom = null;
     public DcMotor left_lift = null;
     public DcMotor right_lift = null;
     public DcMotor tilt = null;
@@ -41,9 +42,22 @@ public class CatHW_Jaws extends CatHW_Subsystem
     public ColorSensor intakeColor = null;
     public DistanceSensor intakeDistance = null;
     public ElapsedTime liftTime = null;
+    public ElapsedTime pidTimer = null;
 
-    private int lastLiftEncoder = 0;
+    private double lastError;
+    private double lastTime;
 
+    public Update_PID ourThread;
+
+    private enum TiltMode{
+        ARMBACK,
+        ARMFRONT,
+        ARMFRONTMEDIUM,
+        ARMFRONTLOW,
+        MANUEL,
+        IDLE
+    };
+    private TiltMode tiltMode = TiltMode.IDLE;
     // Timers: //
 
     /* Constructor */
@@ -60,7 +74,7 @@ public class CatHW_Jaws extends CatHW_Subsystem
 
 
         left_lift = hwMap.dcMotor.get("left_lift");
-        left_lift.setDirection(DcMotorSimple.Direction.REVERSE);
+        left_lift.setDirection(DcMotorSimple.Direction.FORWARD);
         left_lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         left_lift.setTargetPosition(0);
         left_lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -76,19 +90,24 @@ public class CatHW_Jaws extends CatHW_Subsystem
         tilt.setDirection(DcMotorSimple.Direction.REVERSE);
         tilt.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         tilt.setTargetPosition(0);
-        tilt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        tilt.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
 
         claw = hwMap.servo.get("claw");
 
-        liftBottom = hwMap.touchSensor.get("touch");
         intakeColor = hwMap.colorSensor.get("intake_color");
 
         intakeDistance = hwMap.get(DistanceSensor.class, "intake_color");
 
         liftTime = new ElapsedTime();
+        pidTimer = new ElapsedTime();
+
+        ourThread = new Update_PID(this);
+        Thread th = new Thread(ourThread,"update pid");
+        th.start();
     }
+
 
 
     //----------------------------------------------------------------------------------------------
@@ -117,72 +136,110 @@ public class CatHW_Jaws extends CatHW_Subsystem
     // TOP 6189
     public void setLiftBottom(double power){
         left_lift.setTargetPosition(15);
-        lastLiftEncoder = -100;
         left_lift.setPower(power);
-        if(liftBottom.isPressed()){
-            left_lift.setTargetPosition(left_lift.getCurrentPosition());
-
-        }
+        right_lift.setTargetPosition(15);
+        right_lift.setPower(power);
+        armFront();
     }
     public void setLiftGroundJunction(double power){
-        right_lift.setTargetPosition(45);
-        left_lift.setTargetPosition(45);
-        lastLiftEncoder = -100;
-        left_lift.setPower(power);
-        right_lift.setPower(power);
+        tilt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        tilt.setTargetPosition(8);
+        tilt.setPower(power);
     }
-    public void setLiftLowPole(double power){
-        left_lift.setTargetPosition(365);
-        lastLiftEncoder = -100;
-        left_lift.setPower(power);
+    public void setLiftLowBack(double power){
+        setLiftHeight(193,power);
+        armBack();
     }
-    public void setLiftMiddlePole(double power){
-        left_lift.setTargetPosition(570);
-        lastLiftEncoder = -100;
-        left_lift.setPower(power);
+    public void setLiftMiddleBack(double power){
+        setLiftHeight(425,power);
+        armBack();
+    }
+    public void setLiftLowFront(double power){
+        //setLiftHeight(365,power);
+        armFrontLow();
+    }
+    public void setLiftMiddleFront(double power){
+        setLiftHeight(170, power);
+        armFrontMedium();
     }
     public void setLiftHighPole(double power){
-        left_lift.setTargetPosition(745);
-        lastLiftEncoder = -100;
+        left_lift.setTargetPosition(504);
         left_lift.setPower(power);
+        right_lift.setTargetPosition(504);
+        right_lift.setPower(power);
+        armBack();
     }
 
     public void setLiftHeight(int height, double power){
         left_lift.setTargetPosition(height);
         left_lift.setPower(power);
+        right_lift.setTargetPosition(height);
+        right_lift.setPower(power);
 
     }
-    public void setTiltback(double power){
+    public void setArmHeight(int height){
+        tilt.setTargetPosition(height);
+        tilt.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        tiltMode = TiltMode.MANUEL;
+
+    }
+    public void armBack(){
         tilt.setTargetPosition(185);
-        tilt.setPower(power);
+        tilt.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        tiltMode = TiltMode.ARMBACK;
     }
 
-    public void setTiltforward(double power){
+    public void armFront(){
         tilt.setTargetPosition(0);
-        tilt.setPower(power);
+        tilt.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        tiltMode = TiltMode.ARMFRONT;
+    }
+    public void armFrontMedium(){
+
+        tilt.setTargetPosition(100);
+        tilt.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        tilt.setPower(.4);
+        tiltMode = TiltMode.ARMFRONTMEDIUM;
+    }
+    public void armFrontLow(){
+        tilt.setTargetPosition(75);
+        tilt.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lastTime = pidTimer.seconds();
+        lastError = 0;
+        tiltMode = TiltMode.ARMFRONTLOW;
     }
 
 
-    public void bumpTilt(int bumpAmount) {
-        if (bumpAmount > 0.5) {
-            tilt.setTargetPosition(bumpAmount + tilt.getCurrentPosition());
-            tilt.setPower(1);
-        } else if (bumpAmount < -0.5) {
-            tilt.setTargetPosition(bumpAmount + tilt.getCurrentPosition());
-            tilt.setPower(.7);
-        }
+    public void resetLift(){
+        left_lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        right_lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        left_lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        right_lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+
+    public void bumpArm(int bumpAmount) {
+        tilt.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER );
+        tilt.setTargetPosition(bumpAmount + tilt.getTargetPosition());
+        tiltMode = TiltMode.MANUEL;
+
     }
     public void bumpLift(int bumpAmount) {
         if (bumpAmount > 0.5){
             left_lift.setTargetPosition(bumpAmount + left_lift.getCurrentPosition());
+            right_lift.setTargetPosition(bumpAmount + right_lift.getCurrentPosition());
             left_lift.setPower(1);
+            right_lift.setPower(1);
+
         }else if(bumpAmount <-0.5){
             left_lift.setTargetPosition(bumpAmount + left_lift.getCurrentPosition());
             left_lift.setPower(.7);
-            if(liftBottom.isPressed()){
-                left_lift.setTargetPosition(left_lift.getCurrentPosition());
+            right_lift.setPower(.7);
+            right_lift.setTargetPosition(bumpAmount + right_lift.getCurrentPosition());
 
-            }
+
         }
     }
 
@@ -191,15 +248,15 @@ public class CatHW_Jaws extends CatHW_Subsystem
     }
 
     public void grabPos(){
-        claw.setPosition(.3 );
+        claw.setPosition(.95);
     }
-    public void unGrab()  { claw.setPosition(0); }
+    public void unGrab()  { claw.setPosition(.83); }
 
 
     //intake color sensor methods
     public boolean haveCone() {
-        Log.d("catbot", String.format("Have Freight r/g/b/a %4d %4d %4d %4d",
-                intakeColor.red(),intakeColor.green(),intakeColor.blue(),intakeColor.alpha()));
+        //Log.d("catbot", String.format("Have Freight r/g/b/a %4d %4d %4d %4d",
+        //        intakeColor.red(),intakeColor.green(),intakeColor.blue(),intakeColor.alpha()));
 
         if(intakeDistance.getDistance(DistanceUnit.INCH)< 1.2 ){
             return true;
@@ -207,25 +264,54 @@ public class CatHW_Jaws extends CatHW_Subsystem
         return false;
     }
 
-    public void waitForLift(){
-        while (left_lift.isBusy()) {
-            int liftPos = left_lift.getCurrentPosition();
-            // return if the main hardware's opMode is no longer active.
-            if (!(mainHW.opMode.opModeIsActive())) {
-                return;
+
+
+
+
+
+    public void updatePID(){
+        /*if(tiltMode == TiltMode.ARMBACK){
+            if(tilt.getCurrentPosition() < 100 ){
+                tilt.setPower(.9);
+            }else if(tilt.getCurrentPosition() < 150){
+                tilt.setPower(.2);
+            }else if(tilt.getCurrentPosition() < 180){
+                tilt.setPower(.1);
+            }else{
+                tilt.setPower(0);
+                tiltMode = TiltMode.IDLE;
+                result = true;
             }
-            if(lastLiftEncoder == liftPos){
-                return;
+        }else if(tiltMode == TiltMode.ARMFRONT){
+            if(tilt.getCurrentPosition() > 135){
+                tilt.setPower(-.9);
+            }else if(tilt.getCurrentPosition()> 40){
+                tilt.setPower(-.2);
+            }else if(tilt.getCurrentPosition()>15){
+                tilt.setPower(-.1);
+            }else {
+                tilt.setPower(0);
+                result = true;
             }
-            lastLiftEncoder = liftPos;
-            mainHW.robotWait(0.05);
+        }else*/
+        //if(tiltMode == TiltMode.ARMFRONTLOW || tiltMode == TiltMode.ARMFRONTMEDIUM|| tiltMode == TiltMode.MANUEL){
+        if(tiltMode!= TiltMode.IDLE){
+            double Kp = 0.03;
+            double Kd = 0.0015;
+            double curTime = pidTimer.seconds();
+            double error = tilt.getTargetPosition() - tilt.getCurrentPosition();
+            double derivative = (error - lastError)/(curTime - lastTime);
+            double theta = tilt.getCurrentPosition() * 1.33; //this is in degrees
+            theta *= 3.14/180.0;
+            double gravityAdjustment = Math.sin(theta) * 0.15;
+
+            lastTime = curTime;
+            lastError = error;
+            tilt.setPower(Kp * error + Kd * derivative + gravityAdjustment);
+            Log.d("catbot",String.format("pow: %.3f error: %.1f der: %.2f",
+                    Kp * error + Kd * derivative + gravityAdjustment,error,derivative));
         }
     }
-
-
-
-
-
 
     //----------------------------------------------------------------------------------------------
     // isDone Method:
@@ -233,11 +319,21 @@ public class CatHW_Jaws extends CatHW_Subsystem
     @Override
     public boolean isDone() {
         //Log.d("catbot", String.format(" intake power %.2f,", transferMotor.getPower()));
-        // turn off lift when it's all the way down.
-        if ( (left_lift.getTargetPosition() == 0) && (Math.abs(left_lift.getCurrentPosition()) < 50)) {
-            left_lift.setPower(0);
+        boolean result = false;
+
+
+
+        if(Math.abs(left_lift.getCurrentPosition()-left_lift.getTargetPosition())<20){
+            if(Math.abs(tilt.getCurrentPosition()-tilt.getTargetPosition()) < 15){
+                result = true;
+            }
         }
 
-        return false;
+        // turn off lift when it's all the way down.
+        //if ( (left_lift.getTargetPosition() == 0) && (Math.abs(left_lift.getCurrentPosition()) < 50)) {
+           // left_lift.setPower(0);
+        //}
+
+        return result;
     }
 }

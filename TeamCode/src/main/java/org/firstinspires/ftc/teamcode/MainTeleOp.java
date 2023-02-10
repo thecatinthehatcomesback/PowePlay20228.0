@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -174,16 +173,16 @@ public class MainTeleOp extends LinearOpMode
                 robot.jaws.setLiftHighPole(.8);
 
             }else if(gamepad2.dpad_left){
-                robot.jaws.setLiftMiddlePole(.8);
+                robot.jaws.setLiftMiddleBack(.8);
 
             }else if(gamepad2.dpad_down){
                 robot.jaws.setLiftGroundJunction(.25);
 
             } else if(gamepad2.ps) {
-                robot.jaws.left_lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.jaws.resetLift();
 
             } else if(gamepad2.dpad_right){
-                robot.jaws.setLiftLowPole(.8);
+                robot.jaws.setLiftLowBack(.8);
 
             } else if(gamepad2.left_bumper){
                 robot.jaws.setLiftBottom(.25);
@@ -191,11 +190,30 @@ public class MainTeleOp extends LinearOpMode
 
 
             //manually be able to move lift on both gamepad 1 and 2
-            if(gamepad2.y || gamepad1.y){
-                robot.jaws.setTiltback(.1 );
-            }else if(gamepad2.a || gamepad1.a){
-                robot.jaws.setTiltforward(.1);
+            if(-gamepad2.left_stick_y > 0.5){
+                robot.jaws.bumpLift(50);
+            }else if(-gamepad2.left_stick_y < -0.5){
+                robot.jaws.bumpLift(-50);
             }
+
+            if(-gamepad2.right_stick_y > 0.5){
+                robot.jaws.bumpArm(1);
+            }else if(-gamepad2.right_stick_y < -0.5){
+                robot.jaws.bumpArm(-1);
+            }
+
+            if(gamepad2.triangle){
+                robot.jaws.armBack();
+            }else if(gamepad2.cross){
+                robot.jaws.armFront();
+            }else if(gamepad2.square){
+                robot.jaws.setLiftMiddleFront(.7);
+            }else if(gamepad2.circle){
+                robot.jaws.setLiftLowFront(.7);
+            }
+
+            robot.jaws.isDone();
+
             //gamepad 2 can close the claw
             if(gamepad2.right_trigger>0.1 || (robot.jaws.haveCone() && gamepad2.left_trigger <= 0.1)){
                 robot.jaws.grabPos();
@@ -215,11 +233,12 @@ public class MainTeleOp extends LinearOpMode
             telemetry.addData("lift pos","Cur:%d target:%d pow:%.2f",robot.jaws.left_lift.getCurrentPosition(), robot.jaws.left_lift.getTargetPosition(), robot.jaws.left_lift.getPower());
             telemetry.addData("Game Timer","%.2f",elapsedGameTime.time());
             telemetry.addData("Tilt Pos","Cur:%d target:%d pow:%.2f",robot.jaws.tilt.getCurrentPosition(), robot.jaws.tilt.getTargetPosition(),robot.jaws.tilt.getPower());
-
+            telemetry.addData("Claw POS",robot.jaws.claw.getPosition());
             telemetry.update();
             dashboardTelemetry.update();
         }
 
+        robot.jaws.ourThread.stop();
         robot.eyes.stop();
     }
 

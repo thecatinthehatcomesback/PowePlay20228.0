@@ -12,11 +12,12 @@ public class CatHW_RealSense extends CatHW_Subsystem {
     public CatHW_RealSense(CatHW_Async mainHardware){
         super(mainHardware);
     }
+    CatHW_Async robot = new CatHW_Async();
     private static T265Camera slamra = null;
     private static boolean isCamStart = false;
 
-    private double xPos;
-    private double yPos;
+    public double xPos;
+    public double yPos;
 
     double lastAngle;
     double currentAngle;
@@ -50,9 +51,17 @@ public class CatHW_RealSense extends CatHW_Subsystem {
         if (up == null) return false;
 
         // We divide by 0.0254 to convert meters to inches
-        xPos = -up.pose.getTranslation().getX() / 0.0254;
-        yPos = -up.pose.getTranslation().getY() / 0.0254;
-        updateCurrentAngle(up.pose.getRotation());
+
+        if(robot.isLeftAlliance){
+            xPos = -up.pose.getTranslation().getX() / 0.0254;
+            yPos = -up.pose.getTranslation().getY() / 0.0254;
+            updateCurrentAngle(up.pose.getRotation());
+        }else if (!robot.isLeftAlliance){
+            xPos = up.pose.getTranslation().getX() / 0.0254;
+            yPos = up.pose.getTranslation().getY() / 0.0254;
+            updateCurrentAngle(up.pose.getRotation());
+        }
+
         return true;
 
     }
