@@ -135,16 +135,13 @@ public class CatHW_Jaws extends CatHW_Subsystem
 
     // TOP 6189
     public void setLiftBottom(double power){
-        left_lift.setTargetPosition(15);
-        left_lift.setPower(power);
-        right_lift.setTargetPosition(15);
-        right_lift.setPower(power);
+        setLiftHeight(0,.25);
         armFront();
     }
     public void setLiftGroundJunction(double power){
+        setLiftHeight(0,power);
         tilt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         tilt.setTargetPosition(8);
-        tilt.setPower(power);
     }
     public void setLiftLowBack(double power){
         setLiftHeight(193,power);
@@ -155,7 +152,8 @@ public class CatHW_Jaws extends CatHW_Subsystem
         armBack();
     }
     public void setLiftLowFront(double power){
-        //setLiftHeight(365,power);
+        setLiftHeight(0,power);
+
         armFrontLow();
     }
     public void setLiftMiddleFront(double power){
@@ -167,7 +165,7 @@ public class CatHW_Jaws extends CatHW_Subsystem
         left_lift.setPower(power);
         right_lift.setTargetPosition(504);
         right_lift.setPower(power);
-        armBack();
+        setArmHeight(160);
     }
 
     public void setLiftHeight(int height, double power){

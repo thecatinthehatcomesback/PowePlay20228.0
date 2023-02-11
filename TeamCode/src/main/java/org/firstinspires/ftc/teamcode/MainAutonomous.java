@@ -193,7 +193,7 @@ public class MainAutonomous extends LinearOpMode {
         //robot.drive.quickDrive(11,37,40,.3,5);
         robot.drive.quickDrive(17,31,0,1,5);
         robot.drive.setTightTolerance();
-        robot.drive.quickDrive(17,33.5,0,.2,5);
+        robot.drive.quickDrive(17,32.5,0,.2,5);
         robot.robotWait(.5);
         robot.jaws.setArmHeight(95);
         robot.jaws.unGrab();
@@ -211,9 +211,9 @@ public class MainAutonomous extends LinearOpMode {
 
         robot.robotWait(.25);
         robot.drive.setLooseTolerance();
-        robot.drive.quickDrive(-4,48,-90,1,5);
+        robot.drive.quickDrive(-4,45,-90,1,5);
         robot.drive.setTightTolerance();
-        robot.drive.quickDrive(-9,48,-90,.2,5);
+        robot.drive.quickDrive(-9,45,-90,.2,5);
         ElapsedTime grabTimer = new ElapsedTime();
         while(!robot.jaws.haveCone() && (grabTimer.seconds() < 2)){
             robot.drive.setDrivePowers(.15,.15,.15,.15);
@@ -224,14 +224,41 @@ public class MainAutonomous extends LinearOpMode {
         robot.robotWait(.25);
         robot.drive.quickDrive(12,45,-90,1,5);
         robot.jaws.setLiftMiddleBack(.3);
-        robot.drive.quickDrive(8,35,-90,.5,5);
-        robot.drive.quickDrive(6,35,-90,.5,5);
+        robot.drive.quickDrive(8,33,-90,.5,5);
+        robot.drive.quickDrive(6,33,-90,.5,5);
         robot.robotWait(.2);
         robot.jaws.setLiftHeight(380,.5);
         robot.robotWait(.2);
         robot.jaws.unGrab();
         robot.robotWait(.2);
+        robot.drive.quickDrive(10,45,-90,1,5);
+        robot.jaws.grabPos();
+        robot.robotWait(.15);
+        robot.jaws.setLiftBottom(.7);
+        robot.jaws.setArmHeight(stackedConeHeight - 5);
+        robot.jaws.unGrab();
+
+        robot.drive.quickDrive(-4,45,-90,1,5);
+        robot.drive.setTightTolerance();
+        robot.drive.quickDrive(-9,45,-90,.2,5);
+        ElapsedTime secondGrabTimer = new ElapsedTime();
+        while(!robot.jaws.haveCone() && (secondGrabTimer.seconds() < 2)){
+            robot.drive.setDrivePowers(.15,.15,.15,.15);
+        }
+        robot.jaws.grabPos();
+        robot.robotWait(.5);
+        robot.jaws.setArmHeight(70);
+        robot.robotWait(.25);
         robot.drive.quickDrive(12,45,-90,1,5);
+        robot.jaws.setLiftMiddleBack(.3);
+        robot.drive.quickDrive(8,33,-90,.5,5);
+        robot.drive.quickDrive(6,33,-90,.5,5);
+        robot.robotWait(.2);
+        robot.jaws.setLiftHeight(380,.5);
+        robot.robotWait(.2);
+        robot.jaws.unGrab();
+        robot.robotWait(.2);
+        robot.drive.quickDrive(10,45,-90,1,5);
         robot.jaws.grabPos();
         robot.robotWait(.15);
         robot.jaws.setLiftBottom(.7);
@@ -239,7 +266,7 @@ public class MainAutonomous extends LinearOpMode {
         robot.jaws.unGrab();
 
         robot.drive.setLooseTolerance();
-        switch(conePos) {
+        /*switch(conePos) {
             case NONE:
             case RIGHT:
                 robot.drive.quickDrive(38, 50, -90, 1, 5);
@@ -252,7 +279,6 @@ public class MainAutonomous extends LinearOpMode {
                 break;
         }
 
-        //DELETE ABOVE AFTER TESTING
 
         /*while(runningTime.seconds() < 20){
 
@@ -350,7 +376,7 @@ public class MainAutonomous extends LinearOpMode {
         }
         robot.jaws.grabPos();
         robot.robotWait(.25);
-        robot.jaws.setArmHeight(70);
+        robot.jaws.setArmHeight(73);
         robot.drive.setLooseTolerance();
         robot.drive.quickDrive(2,43,90,1,5);
         robot.jaws.setLiftMiddleBack(.3);
@@ -362,13 +388,88 @@ public class MainAutonomous extends LinearOpMode {
         robot.jaws.unGrab();
         robot.robotWait(.5);
         robot.jaws.grabPos();
+        robot.drive.setLooseTolerance();
         robot.drive.quickDrive(2,43,90,1,5);
         robot.jaws.setLiftBottom(.5);
-        robot.robotWait(2);
 
-        //Below wil be if Parking RIGHT
+        if(conePos == CatHW_Vision.UltimateGoalPipeline.conePosition.RIGHT) {
+            robot.drive.setTightTolerance();
+            robot.jaws.unGrab();
+            robot.jaws.setArmHeight(stackedConeHeight - 5);
+            robot.drive.quickDrive(18, 43, 90, .25, 5);
 
-        //Above will be if Parking RIGHT
+            ElapsedTime secondGrabTimer = new ElapsedTime();
+            while (!robot.jaws.haveCone() && (secondGrabTimer.seconds() < 2)) {
+                robot.drive.setDrivePowers(.15, .15, .15, .15);
+            }
+            robot.jaws.grabPos();
+            robot.robotWait(.25);
+            robot.jaws.setLiftLowBack(.7);
+            robot.drive.quickDrive(23, 32, 90, 1, 5);
+            robot.drive.quickDrive(24.5, 32, 90, 1, 5);
+            robot.jaws.unGrab();
+            robot.robotWait(.25);
+            robot.jaws.grabPos();
+            robot.drive.quickDrive(20, 32, 90, 1, 5);
+
+            robot.jaws.setLiftBottom(1);
+            robot.robotWait(1);
+            robot.drive.quickDrive(23, 32, 90, 1, 5);
+        }else if(conePos == CatHW_Vision.UltimateGoalPipeline.conePosition.MIDDLE){
+            robot.jaws.unGrab();
+            robot.jaws.setArmHeight(stackedConeHeight-5);
+            robot.drive.quickDrive(18,43,90,.25,5);
+
+            ElapsedTime thirdGrabTimer = new ElapsedTime();
+            while(!robot.jaws.haveCone() && (thirdGrabTimer.seconds() < 2)){
+                robot.drive.setDrivePowers(.15,.15,.15,.15);
+            }
+            robot.jaws.grabPos();
+            robot.robotWait(.25);
+            robot.jaws.setArmHeight(73);
+            robot.drive.setLooseTolerance();
+            robot.drive.quickDrive(2,43,90,1,5);
+            robot.jaws.setLiftMiddleBack(.3);
+
+            robot.drive.quickDrive(2,31,90,1,5);
+            robot.drive.quickDrive(6,31,90,1,5);
+            robot.jaws.setLiftHeight(380,1);
+            robot.robotWait(.25);
+            robot.jaws.unGrab();
+            robot.robotWait(.5);
+            robot.jaws.grabPos();
+            robot.drive.setLooseTolerance();
+            robot.drive.quickDrive(-1,31,90,1,5);
+            robot.jaws.setLiftBottom(.5);
+            robot.robotWait(1);
+        }else if(conePos == CatHW_Vision.UltimateGoalPipeline.conePosition.LEFT){
+            robot.jaws.unGrab();
+            robot.jaws.setArmHeight(stackedConeHeight-5);
+            robot.drive.quickDrive(18,43,90,.25,5);
+
+            ElapsedTime thirdGrabTimer = new ElapsedTime();
+            while(!robot.jaws.haveCone() && (thirdGrabTimer.seconds() < 2)){
+                robot.drive.setDrivePowers(.15,.15,.15,.15);
+            }
+            robot.jaws.grabPos();
+            robot.robotWait(.25);
+            robot.jaws.setArmHeight(73);
+            robot.drive.setLooseTolerance();
+            robot.drive.quickDrive(2,43,90,1,5);
+            robot.jaws.setLiftMiddleBack(.3);
+
+            robot.drive.quickDrive(2,31,90,1,5);
+            robot.drive.quickDrive(6,31,90,1,5);
+            robot.jaws.setLiftHeight(380,1);
+            robot.robotWait(.25);
+            robot.jaws.unGrab();
+            robot.robotWait(.5);
+            robot.jaws.grabPos();
+            robot.drive.quickDrive(6,43,90,1,5);
+            robot.drive.quickDrive(-20,43,90,1,5);
+            robot.jaws.setLiftBottom(.3);
+
+        }
 
 
         /*while(runningTime.seconds() < 20){

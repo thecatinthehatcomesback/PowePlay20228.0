@@ -170,10 +170,10 @@ public class MainTeleOp extends LinearOpMode
 
             //lets gamepad 2 set the lift to all five heights
             if(gamepad2.dpad_up){
-                robot.jaws.setLiftHighPole(.8);
+                robot.jaws.setLiftHighPole(.3);
 
             }else if(gamepad2.dpad_left){
-                robot.jaws.setLiftMiddleBack(.8);
+                robot.jaws.setLiftMiddleBack(.3);
 
             }else if(gamepad2.dpad_down){
                 robot.jaws.setLiftGroundJunction(.25);
@@ -182,7 +182,7 @@ public class MainTeleOp extends LinearOpMode
                 robot.jaws.resetLift();
 
             } else if(gamepad2.dpad_right){
-                robot.jaws.setLiftLowBack(.8);
+                robot.jaws.setLiftLowBack(.25);
 
             } else if(gamepad2.left_bumper){
                 robot.jaws.setLiftBottom(.25);
